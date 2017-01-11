@@ -64,7 +64,7 @@ The traffic can be read back out of the PhilDB database storing the logged data.
 
 ::
 
-    $ phil amacd31_git_traffic/gtc_phildb
+    $ phildb amacd31_git_traffic/gtc_phildb
     Python 3.5.2 |Anaconda 4.2.0 (x86_64)| (default, Jul  2 2016, 17:52:12)
     Type "copyright", "credits" or "license" for more information.
 
