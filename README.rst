@@ -8,7 +8,7 @@ traffic to all the repositories owned by the running user.
 Dependencies
 ------------
 
-Requires Python 2.7 or greater (tested with Python 3.5 on Mac OSX).
+Requires Python 3.4 or greater (tested with Python 3.5 on Mac OSX).
 
 Installation
 ------------
