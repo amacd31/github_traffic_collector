@@ -88,3 +88,10 @@ The 'measurand' field specifies which data to read back out where the available 
     V   Total number of views
     UV  Number of unique views
     ==  ===========================
+
+Visualise the results using the server.
+
+::
+
+    gtc-server amacd31_git_traffic/gtc_phildb/
+     * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)

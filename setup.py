@@ -33,6 +33,7 @@ setup(
     entry_points = {
         'console_scripts': [
             'gtc = github_traffic_collector.gtc:main',
+            'gtc-server = github_traffic_collector.server:main',
         ],
     },
     classifiers=[
