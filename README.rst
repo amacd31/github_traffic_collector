@@ -9,6 +9,15 @@ Dependencies
 ------------
 
 Requires Python 3.4 or greater (tested with Python 3.5 on Mac OSX).
+Python package dependencies are:
+
+- requests
+- phildb
+- prompt_toolkit
+- pyyaml
+- flask
+- matplotlib
+- seaborn
 
 Installation
 ------------
