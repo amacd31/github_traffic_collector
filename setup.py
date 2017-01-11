@@ -14,6 +14,9 @@ requirements = [
         'prompt_toolkit',
         'requests',
         'pyyaml',
+        'flask',
+        'matplotlib',
+        'seaborn',
     ]
 
 setup(
