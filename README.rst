@@ -95,3 +95,7 @@ Visualise the results using the server.
 
     gtc-server amacd31_git_traffic/gtc_phildb/
      * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+
+Example data plots:
+
+.. image:: https://raw.githubusercontent.com/amacd31/github_traffic_collector/master/example_plots.png
