@@ -1,0 +1,2 @@
+include versioneer.py
+include github_traffic_collector/_version.py
