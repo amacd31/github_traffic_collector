@@ -43,6 +43,7 @@ Subsequent runs will load the data into the existing datastore
 and use the personal token stored in a yaml configuration file inside the datastore.
 
 ::
+
     $ gtc amacd31_git_traffic
     Enter Github API personal acess token to use for authentication:
     Processing: amacd31/bom_data_parser
