@@ -13,7 +13,7 @@ requirements = [
         'phildb',
         'prompt_toolkit',
         'requests',
-        'yaml',
+        'pyyaml',
     ]
 
 setup(
