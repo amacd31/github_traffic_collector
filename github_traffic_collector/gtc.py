@@ -57,6 +57,7 @@ def main():
     views_url = GITHUB_API_HOST + "/repos/{0}/traffic/views"
     clones_url = GITHUB_API_HOST + "/repos/{0}/traffic/clones"
     referrers_url = GITHUB_API_HOST + "/repos/{0}/traffic/popular/referrers"
+    paths_url = GITHUB_API_HOST + "/repos/{0}/traffic/popular/paths"
 
     now = datetime.today()
     year = now.year
@@ -71,6 +72,11 @@ def main():
 
         r = requests.get(referrers_url.format(repo_name), params = params, stream=True)
         with open(os.path.join(repo_data_path, '{0}_referrer.json'.format(date_str)), 'wb') as f:
+            r.raw.decode_content = True
+            shutil.copyfileobj(r.raw, f)
+
+        r = requests.get(paths_url.format(repo_name), params = params, stream=True)
+        with open(os.path.join(repo_data_path, '{0}_path.json'.format(date_str)), 'wb') as f:
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
 
