@@ -1,6 +1,10 @@
 import argparse
+import glob
+import os
+import pandas as pd
 import seaborn as sns
 
+from datetime import date
 from io import BytesIO
 
 from flask import Flask, make_response
@@ -62,15 +66,42 @@ def summary(measurand):
 
     return content
 
+@app.route("/repo/<user>/<repo>/<int:year>/<int:month>/<int:day>")
+def repo(user, repo, year, month, day):
+    content = ""
+    data_dir = os.path.join(DATASTORE, user, repo, str(year), str(month))
+    date_str = date(year, month, day).strftime('%Y%m%d')
+
+    referrer_glob = os.path.join(data_dir, date_str + "*_referrer.json")
+    infile = glob.glob(referrer_glob)[-1]
+    referrer_data = pd.read_json(infile)
+
+    referrer_data.set_index('referrer', inplace=True)
+    referrer_data.to_html()
+    content += referrer_data.to_html()
+
+    path_glob = os.path.join(data_dir, date_str + "*_path.json")
+    infile = glob.glob(path_glob)[-1]
+    path_data = pd.read_json(infile)
+
+    path_data.set_index('title', inplace=True)
+    path_data.to_html()
+
+    content += path_data.to_html()
+
+    return content
+
 def main():
     parser = argparse.ArgumentParser(description='Github traffic collector server.')
     parser.add_argument('datastore', help="Location of datastore to visualise")
     parser.add_argument('--debug', action="store_true", help="Location of datastore to visualise")
 
     args = parser.parse_args()
+    global DATASTORE
+    DATASTORE = args.datastore
 
     global db
-    db = PhilDB(args.datastore)
+    db = PhilDB(os.path.join(args.datastore, 'gtc_phildb'))
     app.run(debug = args.debug)
 
 if __name__ == "__main__":
