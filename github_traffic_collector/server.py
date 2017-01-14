@@ -69,6 +69,9 @@ def summary(measurand):
 @app.route("/repo/<user>/<repo>/<int:year>/<int:month>/<int:day>")
 def repo(user, repo, year, month, day):
     content = ""
+    img = '<img src="/plot/{0}/{1}" alt="{2}" />\n'
+    title = "{0} for {1}".format(MEASURAND_NAME['UV'], user + '/' + repo)
+    content += img.format('UV', user + '/' + repo, title)
     data_dir = os.path.join(DATASTORE, user, repo, str(year), str(month))
     date_str = date(year, month, day).strftime('%Y%m%d')
 
