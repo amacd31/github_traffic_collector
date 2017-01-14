@@ -2,8 +2,10 @@ import argparse
 import os
 import pandas as pd
 import requests
+import shutil
 import yaml
 
+from datetime import datetime
 from phildb.create import create
 from phildb.database import PhilDB
 from phildb.exceptions import DuplicateError
@@ -54,9 +56,23 @@ def main():
 
     views_url = GITHUB_API_HOST + "/repos/{0}/traffic/views"
     clones_url = GITHUB_API_HOST + "/repos/{0}/traffic/clones"
+    referrers_url = GITHUB_API_HOST + "/repos/{0}/traffic/popular/referrers"
+
+    now = datetime.today()
+    year = now.year
+    month = now.month
+    date_str = now.strftime('%Y%m%d_%H%M')
     for repo in repo_list:
         repo_name = repo['full_name']
         print('Processing: {0}'.format(repo_name))
+
+        repo_data_path = os.path.join(args.datastore, repo_name, str(year), str(month))
+        os.makedirs(repo_data_path, exist_ok=True)
+
+        r = requests.get(referrers_url.format(repo_name), params = params, stream=True)
+        with open(os.path.join(repo_data_path, '{0}_referrer.json'.format(date_str)), 'wb') as f:
+            r.raw.decode_content = True
+            shutil.copyfileobj(r.raw, f)
 
         try:
             db.add_timeseries(repo_name)
