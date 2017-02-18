@@ -96,6 +96,8 @@ The 'measurand' field specifies which data to read back out where the available 
     UV  Number of unique git clones
     V   Total number of views
     UV  Number of unique views
+    W   Number of watchers
+    S   Number of stargazers
     ==  ===========================
 
 Visualise the results using the server.
