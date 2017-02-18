@@ -29,12 +29,38 @@ def main():
         db = PhilDB(db_path)
 
         db.add_source('GITHUB', 'Github')
-        db.add_measurand('C', 'CLONES', 'Total number of git clones')
-        db.add_measurand('UC', 'UNIQUE_CLONES', 'Number of unique git clones')
-        db.add_measurand('V', 'VIEWS', 'Total number of views')
-        db.add_measurand('UV', 'UNIQUE_VIEWS', 'Number of unique views')
     else:
         db = PhilDB(db_path)
+
+    try:
+        db.add_measurand('C', 'CLONES', 'Total number of git clones')
+    except DuplicateError:
+        pass
+
+    try:
+        db.add_measurand('UC', 'UNIQUE_CLONES', 'Number of unique git clones')
+    except DuplicateError:
+        pass
+
+    try:
+        db.add_measurand('V', 'VIEWS', 'Total number of views')
+    except DuplicateError:
+        pass
+
+    try:
+        db.add_measurand('UV', 'UNIQUE_VIEWS', 'Number of unique views')
+    except DuplicateError:
+        pass
+
+    try:
+        db.add_measurand('S', 'STARGAZERS', 'Number of repository stars')
+    except DuplicateError:
+        pass
+
+    try:
+        db.add_measurand('W', 'WATCHERS', 'Number of repository watchers')
+    except DuplicateError:
+        pass
 
     config_path = os.path.join(args.datastore, 'config.yaml')
     if not os.path.exists(config_path):
@@ -58,13 +84,14 @@ def main():
     clones_url = GITHUB_API_HOST + "/repos/{0}/traffic/clones"
     referrers_url = GITHUB_API_HOST + "/repos/{0}/traffic/popular/referrers"
     paths_url = GITHUB_API_HOST + "/repos/{0}/traffic/popular/paths"
+    repo_info_url = GITHUB_API_HOST + "/repos/{0}"
 
     now = datetime.today()
     year = now.year
     month = now.month
     date_str = now.strftime('%Y%m%d_%H%M')
-    for repo in repo_list:
-        repo_name = repo['full_name']
+    for repository in repo_list:
+        repo_name = repository['full_name']
         print('Processing: {0}'.format(repo_name))
 
         repo_data_path = os.path.join(args.datastore, repo_name, str(year), str(month))
@@ -113,6 +140,20 @@ def main():
 
             db.write(repo_name, 'D', views_df['count'], measurand = 'V')
             db.write(repo_name, 'D', views_df['uniques'], measurand = 'UV')
+
+        repo = requests.get(repo_info_url.format(repo_name), params = params).json()
+        try:
+            db.add_timeseries_instance(repo_name, 'D', '', source = 'GITHUB', measurand = 'S')
+        except DuplicateError:
+            pass
+
+        db.write(repo_name, 'D', pd.Series([repo['stargazers_count']], [now.date()]), measurand = 'S')
+
+        try:
+            db.add_timeseries_instance(repo_name, 'D', '', source = 'GITHUB', measurand = 'W')
+        except DuplicateError:
+            pass
+        db.write(repo_name, 'D', pd.Series([repo['subscribers_count']], [now.date()]), measurand = 'W')
 
 if __name__ == "__main__":
     main()
