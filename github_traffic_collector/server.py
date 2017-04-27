@@ -46,7 +46,7 @@ def plot(measurand, user, repo):
 
     user_repo = user + '/' + repo
 
-    ts = db.read(user_repo, 'D', measurand = measurand)
+    ts = db.read(user_repo, 'D', measurand = measurand).asfreq('D').fillna(0)
 
     ts.plot(ax = ax)
 
