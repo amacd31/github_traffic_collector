@@ -19,7 +19,9 @@ MEASURAND_NAME = {
     'C': 'Total number of git clones',
     'UC': 'Number of unique git clones',
     'V': 'Total number of views',
-    'UV': 'Number of unique views'
+    'UV': 'Number of unique views',
+    'S': 'Number of Star Gazers',
+    'W': 'Number of Watchers',
 }
 
 @app.route("/")
@@ -30,6 +32,8 @@ def index():
   <li><a href="/summary/V">Views summary</a></li>
   <li><a href="/summary/UC">Unique clones summary</a></li>
   <li><a href="/summary/C">Clones summary</a></li>
+  <li><a href="/summary/S">Star Gazers summary</a></li>
+  <li><a href="/summary/W">Watchers summary</a></li>
 </ul>
 """
 
