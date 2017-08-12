@@ -62,7 +62,7 @@ def plot(measurand, user, repo):
 @app.route("/summary/<measurand>")
 def summary(measurand):
     content = ""
-    img = '<img src="/plot/{0}/{1}" alt="{2}" />\n'
+    img = '<a href="/repo/{1}"><img src="/plot/{0}/{1}" alt="{2}" /></a>\n'
     for ts_id in db.list_ids():
         if len(db.read(ts_id, 'D', measurand = measurand)) > 0:
             title = "{0} for {1}".format(MEASURAND_NAME[measurand], ts_id)
