@@ -115,4 +115,5 @@ Each repository plot on the summary pages links to the latest recorded traffic
 information on referrers and paths visited for that repository.
 
 For example:
+
 .. image:: https://raw.githubusercontent.com/amacd31/github_traffic_collector/master/example_repo_page.png
