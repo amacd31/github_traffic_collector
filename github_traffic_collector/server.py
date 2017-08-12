@@ -71,15 +71,24 @@ def summary(measurand):
     return content
 
 @app.route("/repo/<user>/<repo>/<int:year>/<int:month>/<int:day>")
-def repo(user, repo, year, month, day):
+def repo_information(user, repo, year, month, day):
+    date_str = date(year, month, day).strftime('%Y%m%d')
+    glob_start = os.path.join(str(year), str(month), date_str)
+
+    return repo_for_last_globbed(user, repo, glob_start)
+
+@app.route("/repo/<user>/<repo>")
+def latest_repo_information(user, repo):
+    return repo_for_last_globbed(user, repo, os.path.join('*', '*', ''))
+
+def repo_for_last_globbed(user, repo, glob_start):
     content = ""
     img = '<img src="/plot/{0}/{1}" alt="{2}" />\n'
     title = "{0} for {1}".format(MEASURAND_NAME['UV'], user + '/' + repo)
     content += img.format('UV', user + '/' + repo, title)
-    data_dir = os.path.join(DATASTORE, user, repo, str(year), str(month))
-    date_str = date(year, month, day).strftime('%Y%m%d')
+    data_dir = os.path.join(DATASTORE, user, repo)
 
-    referrer_glob = os.path.join(data_dir, date_str + "*_referrer.json")
+    referrer_glob = os.path.join(data_dir, glob_start + "*_referrer.json")
     infile = glob.glob(referrer_glob)[-1]
     referrer_data = pd.read_json(infile)
 
@@ -87,7 +96,7 @@ def repo(user, repo, year, month, day):
     referrer_data.to_html()
     content += referrer_data.to_html()
 
-    path_glob = os.path.join(data_dir, date_str + "*_path.json")
+    path_glob = os.path.join(data_dir, glob_start + "*_path.json")
     infile = glob.glob(path_glob)[-1]
     path_data = pd.read_json(infile)
 
