@@ -60,6 +60,9 @@ and use the personal token stored in a yaml configuration file inside the datast
     Processing: amacd31/catchment_tools
     ...
 
+After initial set up, running daily is the best way to keep the data up to date
+(for example running `gtc amacd31_git_traffic` in a cronjob).
+
 The traffic can be read back out of the PhilDB database storing the logged data.
 
 ::
