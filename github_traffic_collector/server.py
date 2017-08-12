@@ -92,18 +92,22 @@ def repo_for_last_globbed(user, repo, glob_start):
     infile = glob.glob(referrer_glob)[-1]
     referrer_data = pd.read_json(infile)
 
-    referrer_data.set_index('referrer', inplace=True)
-    referrer_data.to_html()
-    content += referrer_data.to_html()
+    try:
+        referrer_data.set_index('referrer', inplace=True)
+        content += referrer_data.to_html()
+    except KeyError:
+        content += "<p>No referrer data found</p>"
 
     path_glob = os.path.join(data_dir, glob_start + "*_path.json")
     infile = glob.glob(path_glob)[-1]
     path_data = pd.read_json(infile)
 
-    path_data.set_index('title', inplace=True)
-    path_data.to_html()
+    try:
+        path_data.set_index('title', inplace=True)
+        content += path_data.to_html()
+    except KeyError:
+        content += "<p>No paths data found</p>"
 
-    content += path_data.to_html()
 
     return content
 
