@@ -13,6 +13,9 @@ from phildb.create import create
 from phildb.database import PhilDB
 from phildb.exceptions import DuplicateError
 from prompt_toolkit import prompt
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 GITHUB_API_HOST = 'https://api.github.com'
 
@@ -32,6 +35,7 @@ def main():
     parser = argparse.ArgumentParser(description='Github traffic collector.')
     parser.add_argument('datastore', help="Location to store data including a PhilDB database", nargs='?')
     parser.add_argument('--debug', action='store_true', help="Enable debug logging information.")
+    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
 
     args = parser.parse_args()
 
