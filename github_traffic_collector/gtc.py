@@ -31,11 +31,20 @@ def __get_page_links(request):
 def main():
     parser = argparse.ArgumentParser(description='Github traffic collector.')
     parser.add_argument('datastore', help="Location to store data including a PhilDB database", nargs='?')
+    parser.add_argument('--debug', action='store_true', help="Enable debug logging information.")
 
     args = parser.parse_args()
 
     logging.basicConfig()
     LOGGER.setLevel(logging.INFO)
+    if args.debug:
+        LOGGER.setLevel(logging.DEBUG)
+        LOGGER.critical(
+            "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+            "DEBUG OUTPUT INCLUDES URLS WITH YOUR GITHUB AUTH TOKEN.\n"
+            "BE SURE TO REDACT THE TOKEN BEFORE SHARING THE OUTPUT.\n"
+            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+        )
 
     collect_traffic_data(args.datastore)
 
@@ -101,12 +110,14 @@ def collect_traffic_data(datastore):
 
     repos_url = GITHUB_API_HOST + '/user/repos'
     repo_request = requests.get(repos_url, params = params)
+    LOGGER.debug(repo_request.url)
 
     repo_list = repo_request.json()
 
     links = __get_page_links(repo_request)
     while 'last' in links:
         repo_request = requests.get(links['next'])
+        LOGGER.debug(repo_request.url)
         repo_list += repo_request.json()
         links = __get_page_links(repo_request)
 
@@ -129,11 +140,13 @@ def collect_traffic_data(datastore):
         os.makedirs(repo_data_path, exist_ok=True)
 
         r = requests.get(referrers_url.format(repo_name), params = params, stream=True)
+        LOGGER.debug(r.url)
         with open(os.path.join(repo_data_path, '{0}_referrer.json'.format(date_str)), 'wb') as f:
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
 
         r = requests.get(paths_url.format(repo_name), params = params, stream=True)
+        LOGGER.debug(r.url)
         with open(os.path.join(repo_data_path, '{0}_path.json'.format(date_str)), 'wb') as f:
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
@@ -151,7 +164,9 @@ def collect_traffic_data(datastore):
         except DuplicateError:
             pass
 
-        clones_json = requests.get(clones_url.format(repo_name), params = params).json()
+        clones_request = requests.get(clones_url.format(repo_name), params = params)
+        LOGGER.debug(clones_request.url)
+        clones_json = clones_request.json()
         clones_df = pd.DataFrame(clones_json['clones'])
 
         if len(clones_df) > 0:
@@ -162,7 +177,9 @@ def collect_traffic_data(datastore):
             db.write(repo_name, 'D', clones_df['uniques'], measurand = 'UC')
 
 
-        views_json = requests.get(views_url.format(repo_name), params = params).json()
+        views_request = requests.get(views_url.format(repo_name), params = params)
+        LOGGER.debug(views_request.url)
+        views_json = views_request.json()
         views_df = pd.DataFrame(views_json['views'])
 
         if len(views_df) > 0:
@@ -172,7 +189,9 @@ def collect_traffic_data(datastore):
             db.write(repo_name, 'D', views_df['count'], measurand = 'V')
             db.write(repo_name, 'D', views_df['uniques'], measurand = 'UV')
 
-        repo = requests.get(repo_info_url.format(repo_name), params = params).json()
+        repo_request = requests.get(repo_info_url.format(repo_name), params = params)
+        LOGGER.debug(repo_request.url)
+        repo = repo_request.json()
         try:
             db.add_timeseries_instance(repo_name, 'D', '', source = 'GITHUB', measurand = 'S')
         except DuplicateError:
