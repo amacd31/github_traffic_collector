@@ -95,7 +95,7 @@ def collect_traffic_data(datastore):
 
     config_path = os.path.join(datastore, 'config.yaml')
     if not os.path.exists(config_path):
-        access_token = prompt('Enter Github API personal acess token to use for authentication: ')
+        access_token = prompt('Enter Github API personal access token to use for authentication: ')
         config = {
             'access_token': access_token
         }
