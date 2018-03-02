@@ -13,6 +13,18 @@ from prompt_toolkit import prompt
 
 GITHUB_API_HOST = 'https://api.github.com'
 
+def __get_page_links(request):
+    links = {}
+    if 'Link' in request.headers:
+        headers = request.headers['Link'].split(', ')
+        for header in headers:
+            link, ref = header.split('; ')
+            link = link.strip('<').strip('>')
+            links[ref[5:][:-1]] = link
+
+    return links
+
+
 def main():
     parser = argparse.ArgumentParser(description='Github traffic collector.')
     parser.add_argument('datastore', help="Location to store data including a PhilDB database", nargs='?')
@@ -78,7 +90,15 @@ def main():
     params = { 'access_token': config['access_token'] }
 
     repos_url = GITHUB_API_HOST + '/user/repos'
-    repo_list = requests.get(repos_url, params = params).json()
+    repo_request = requests.get(repos_url, params = params)
+
+    repo_list = repo_request.json()
+
+    links = __get_page_links(repo_request)
+    while 'last' in links:
+        repo_request = requests.get(links['next'])
+        repo_list += repo_request.json()
+        links = __get_page_links(repo_request)
 
     views_url = GITHUB_API_HOST + "/repos/{0}/traffic/views"
     clones_url = GITHUB_API_HOST + "/repos/{0}/traffic/clones"
