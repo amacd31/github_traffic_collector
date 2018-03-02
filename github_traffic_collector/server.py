@@ -27,6 +27,7 @@ MEASURAND_NAME = {
 @app.route("/")
 def index():
     return """
+<img src="/plot/top_ten/UV"/>
 <ul>
   <li><a href="/summary/UV">Unique views summary</a></li>
   <li><a href="/summary/V">Views summary</a></li>
@@ -36,6 +37,27 @@ def index():
   <li><a href="/summary/W">Watchers summary</a></li>
 </ul>
 """
+
+@app.route("/plot/top_ten/<measurand>")
+def plot_top_ten(measurand):
+
+    fig=Figure(figsize=(10,5.5))
+    ax=fig.add_subplot(111)
+
+    df = db.read_all('D', measurand=measurand)
+
+    df[
+        (df.sum()).sort_values(ascending=False)[:10].index
+    ].fillna(0).cumsum().plot(ax = ax)
+    ax.set_title("Top 10 repositories by cumulative {0}".format(MEASURAND_NAME[measurand].lower()))
+
+    fig.tight_layout()
+    canvas=FigureCanvas(fig)
+    png_output = BytesIO()
+    canvas.print_png(png_output)
+    response=make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+    return response
 
 @app.route("/plot/<measurand>/<user>/<repo>")
 def plot(measurand, user, repo):
