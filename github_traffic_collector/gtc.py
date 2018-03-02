@@ -5,6 +5,9 @@ import requests
 import shutil
 import yaml
 
+import logging
+LOGGER = logging.getLogger(__name__)
+
 from datetime import datetime
 from phildb.create import create
 from phildb.database import PhilDB
@@ -31,10 +34,17 @@ def main():
 
     args = parser.parse_args()
 
-    if not os.path.exists(args.datastore):
-        os.mkdir(args.datastore)
+    logging.basicConfig()
+    LOGGER.setLevel(logging.INFO)
 
-    db_path = os.path.join(args.datastore, 'gtc_phildb')
+    collect_traffic_data(args.datastore)
+
+
+def collect_traffic_data(datastore):
+    if not os.path.exists(datastore):
+        os.mkdir(datastore)
+
+    db_path = os.path.join(datastore, 'gtc_phildb')
     if not os.path.exists(db_path):
         create(db_path)
 
@@ -74,7 +84,7 @@ def main():
     except DuplicateError:
         pass
 
-    config_path = os.path.join(args.datastore, 'config.yaml')
+    config_path = os.path.join(datastore, 'config.yaml')
     if not os.path.exists(config_path):
         access_token = prompt('Enter Github API personal acess token to use for authentication: ')
         config = {
@@ -110,11 +120,12 @@ def main():
     year = now.year
     month = now.month
     date_str = now.strftime('%Y%m%d_%H%M')
+    LOGGER.info("Found %d repositories to fetch traffic information for", len(repo_list))
     for repository in repo_list:
         repo_name = repository['full_name']
-        print('Processing: {0}'.format(repo_name))
+        LOGGER.info('Processing: %s', repo_name)
 
-        repo_data_path = os.path.join(args.datastore, repo_name, str(year), str(month))
+        repo_data_path = os.path.join(datastore, repo_name, str(year), str(month))
         os.makedirs(repo_data_path, exist_ok=True)
 
         r = requests.get(referrers_url.format(repo_name), params = params, stream=True)
