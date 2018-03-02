@@ -131,10 +131,12 @@ def collect_traffic_data(datastore):
     year = now.year
     month = now.month
     date_str = now.strftime('%Y%m%d_%H%M')
-    LOGGER.info("Found %d repositories to fetch traffic information for", len(repo_list))
+    num_repos = len(repo_list)
+    LOGGER.info("Found %d repositories to fetch traffic information for", num_repos)
+    count = 1
     for repository in repo_list:
         repo_name = repository['full_name']
-        LOGGER.info('Processing: %s', repo_name)
+        LOGGER.info('Processing %d/%d: %s', count, num_repos, repo_name)
 
         repo_data_path = os.path.join(datastore, repo_name, str(year), str(month))
         os.makedirs(repo_data_path, exist_ok=True)
@@ -204,6 +206,8 @@ def collect_traffic_data(datastore):
         except DuplicateError:
             pass
         db.write(repo_name, 'D', pd.Series([repo['subscribers_count']], [now.date()]), measurand = 'W')
+
+        count += 1
 
 if __name__ == "__main__":
     main()
