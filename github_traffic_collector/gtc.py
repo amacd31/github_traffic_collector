@@ -106,7 +106,7 @@ def collect_traffic_data(datastore):
         with open(config_path, 'r') as c:
             config = yaml.safe_load(c)
 
-    params = { 'access_token': config['access_token'] }
+    params = { 'access_token': config['access_token'], 'per_page': 100}
 
     repos_url = GITHUB_API_HOST + '/user/repos'
     repo_request = requests.get(repos_url, params = params)
