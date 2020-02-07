@@ -107,6 +107,9 @@ def collect_traffic_data(datastore):
     headers = { 'Authorization': "token {0}".format(config['access_token']) }
     params = {'per_page': 100}
 
+    if 'repo_type' in config:
+        params['type'] = config['repo_type']
+
     repos_url = GITHUB_API_HOST + '/user/repos'
     repo_request = requests.get(repos_url, headers = headers, params = params)
     LOGGER.debug(repo_request.url)
