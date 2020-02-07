@@ -43,12 +43,6 @@ def main():
     LOGGER.setLevel(logging.INFO)
     if args.debug:
         LOGGER.setLevel(logging.DEBUG)
-        LOGGER.critical(
-            "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-            "DEBUG OUTPUT INCLUDES URLS WITH YOUR GITHUB AUTH TOKEN.\n"
-            "BE SURE TO REDACT THE TOKEN BEFORE SHARING THE OUTPUT.\n"
-            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-        )
 
     collect_traffic_data(args.datastore)
 
@@ -110,10 +104,11 @@ def collect_traffic_data(datastore):
         with open(config_path, 'r') as c:
             config = yaml.safe_load(c)
 
-    params = { 'access_token': config['access_token'], 'per_page': 100}
+    headers = { 'Authorization': "token {0}".format(config['access_token']) }
+    params = {'per_page': 100}
 
     repos_url = GITHUB_API_HOST + '/user/repos'
-    repo_request = requests.get(repos_url, params = params)
+    repo_request = requests.get(repos_url, headers = headers, params = params)
     LOGGER.debug(repo_request.url)
 
     repo_list = repo_request.json()
@@ -145,13 +140,13 @@ def collect_traffic_data(datastore):
         repo_data_path = os.path.join(datastore, repo_name, str(year), str(month))
         os.makedirs(repo_data_path, exist_ok=True)
 
-        r = requests.get(referrers_url.format(repo_name), params = params, stream=True)
+        r = requests.get(referrers_url.format(repo_name), headers = headers, params = params, stream=True)
         LOGGER.debug(r.url)
         with open(os.path.join(repo_data_path, '{0}_referrer.json'.format(date_str)), 'wb') as f:
             r.raw.decode_content = True
             shutil.copyfileobj(r.raw, f)
 
-        r = requests.get(paths_url.format(repo_name), params = params, stream=True)
+        r = requests.get(paths_url.format(repo_name), headers = headers, params = params, stream=True)
         LOGGER.debug(r.url)
         with open(os.path.join(repo_data_path, '{0}_path.json'.format(date_str)), 'wb') as f:
             r.raw.decode_content = True
@@ -170,7 +165,7 @@ def collect_traffic_data(datastore):
         except DuplicateError:
             pass
 
-        clones_request = requests.get(clones_url.format(repo_name), params = params)
+        clones_request = requests.get(clones_url.format(repo_name), headers = headers, params = params)
         LOGGER.debug(clones_request.url)
         clones_json = clones_request.json()
         clones_df = pd.DataFrame(clones_json['clones'])
@@ -183,7 +178,7 @@ def collect_traffic_data(datastore):
             db.write(repo_name, 'D', clones_df['uniques'], measurand = 'UC')
 
 
-        views_request = requests.get(views_url.format(repo_name), params = params)
+        views_request = requests.get(views_url.format(repo_name), headers = headers, params = params)
         LOGGER.debug(views_request.url)
         views_json = views_request.json()
         views_df = pd.DataFrame(views_json['views'])
@@ -195,7 +190,7 @@ def collect_traffic_data(datastore):
             db.write(repo_name, 'D', views_df['count'], measurand = 'V')
             db.write(repo_name, 'D', views_df['uniques'], measurand = 'UV')
 
-        repo_request = requests.get(repo_info_url.format(repo_name), params = params)
+        repo_request = requests.get(repo_info_url.format(repo_name), headers = headers, params = params)
         LOGGER.debug(repo_request.url)
         repo = repo_request.json()
         try:
