@@ -175,7 +175,7 @@ def collect_traffic_data(datastore):
 
         if len(clones_df) > 0:
             clones_df.set_index(pd.to_datetime(clones_df['timestamp']), inplace=True)
-            clones_df = clones_df.asfreq('D').fillna(0)
+            clones_df = clones_df.asfreq('D').fillna(0).tz_localize(None)
 
             db.write(repo_name, 'D', clones_df['count'], measurand = 'C')
             db.write(repo_name, 'D', clones_df['uniques'], measurand = 'UC')
@@ -188,7 +188,7 @@ def collect_traffic_data(datastore):
 
         if len(views_df) > 0:
             views_df.set_index(pd.to_datetime(views_df['timestamp']), inplace=True)
-            views_df = views_df.asfreq('D').fillna(0)
+            views_df = views_df.asfreq('D').fillna(0).tz_localize(None)
 
             db.write(repo_name, 'D', views_df['count'], measurand = 'V')
             db.write(repo_name, 'D', views_df['uniques'], measurand = 'UV')
